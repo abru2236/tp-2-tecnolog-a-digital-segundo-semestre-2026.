@@ -79,72 +79,363 @@ GameBoard* game_board = NULL;
 // ========= EJERCICIO 1: STRINGS (NO USAR string.h) =========
 
 char* strDuplicate(char* src) {
-    // TODO: Contar los caracteres de src, reservar con malloc (no olvidar el '\0'),
-    //       copiar todo y devolver el puntero nuevo.
-    return NULL;
+
+    int i = 0; //Inicializa un contador de caracteres
+
+    while (src[i] != '\0') {
+        i++; //Al finalizar el ciclo, i almacena la longitud del string sin contar el terminador '\0'.
+    }
+
+    //Utilizamos la longitud (i) del string más 1 byte extra para el terminador '\0' y reservamos la memoria.
+    char* resultado = (char*) malloc((i + 1) * sizeof(char));
+
+    if (resultado == NULL) {
+        return NULL; //Se verifica que el malloc se ejecutó bien.
+    }
+
+    //El contador i se incrementa en 1 por cada carácter recorrido, hasta encontrar el terminador '\0'.
+    for (i = 0; src[i] != '\0'; i++) {
+        resultado[i] = src[i]; //El carácter en la i-ésima posición se copia en el nuevo string.
+    }
+
+    resultado[i] = '\0'; //Se agrega el terminador '\0' al nuevo string.
+    return resultado; //Devuelve el nuevo string duplicado.
 }
+
 
 int strCompare(char* s1, char* s2) {
-    // TODO: Devolver 0 si son iguales, 1 si s1 < s2, -1 si s1 > s2.
-    //       Ojo: es la convencion INVERSA a strcmp.
-    return 0;
+
+    int i = 0;
+
+    //Comparar los caracteres de los dos strings hasta encontrar una diferencia.
+    while (s1[i] != '\0' && s2[i] != '\0') {
+
+        if (s1[i] == s2[i]) {
+            i++;
+        } else {
+
+            //Si son diferentes, vemos cuál carácter es menor.
+            if (s1[i] < s2[i]) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
+
+    //Si los dos strings terminaron al mismo tiempo, son iguales.
+    if (s1[i] == '\0' && s2[i] == '\0') {
+        return 0;
+    }
+
+    //Si uno termina antes, ese string es menor que el otro.
+    if (s1[i] == '\0') {
+        return 1;
+    }
+
+    return -1;
 }
 
+
 char* strConcatenate(char* src1, char* src2) {
-    // TODO: Reservar un string nuevo con src1 seguido de src2, y liberar src1 y src2.
-    //       Precondicion: src1 y src2 vienen de malloc y son punteros distintos.
-    return NULL;
+
+    //Buscamos la longitud de los strings que vamos a utilizar.
+    int longitud = 0;
+    int j = 0;
+
+    //Este primer while recorre el primer string.
+    while (src1[j] != '\0') {
+        longitud++; //Guarda su longitud.
+        j++;
+    }
+
+    j = 0;
+
+    //Recorre el segundo string.
+    while (src2[j] != '\0') {
+        longitud++; //Suma su longitud a la longitud ya guardada.
+        j++;
+    }
+
+    //Se pide memoria con malloc usando la longitud total + 1.
+    char* resultado = (char*) malloc((longitud + 1) * sizeof(char));
+
+    if (resultado == NULL) {
+        return NULL;
+    }
+
+    int indice = 0;
+    j = 0;
+
+    while (src1[j] != '\0') {
+        resultado[indice] = src1[j];
+        indice++;
+        j++;
+    }
+
+    j = 0;
+
+    while (src2[j] != '\0') {
+        resultado[indice] = src2[j];
+        indice++;
+        j++;
+    }
+
+    resultado[indice] = '\0';
+
+    //Liberamos los strings originales porque ya los copiamos.
+    free(src1);
+    free(src2);
+
+    return resultado;
 }
+
+
 
 // ========= EJERCICIO 2: FUNCIONES A IMPLEMENTAR (EL TP) =========
 
+
 GameBoard* gameBoardNew() {
-    // TODO: Reservar memoria para el GameBoard.
-    // TODO: Usar un bucle para hacer malloc de las 20 filas (RowNode) y conectarlas.
-    // TODO: El puntero first_row debe apuntar al primero de esos nodos.
-    // TODO: Inicializar queue_head, queue_tail y first_particle en NULL.
-    printf("Función gameBoardNew no implementada.\n");
-    return NULL;
+
+    // Reservamos memoria para el tablero.
+    GameBoard* board = malloc(sizeof(GameBoard));
+    if (board == NULL) {
+        return NULL;
+    }
+
+    //Inicializamos los punteros y los valores del tablero.
+    board->first_row = NULL;
+    board->queue_head = NULL;
+    board->queue_tail = NULL;
+    board->first_particle = NULL;
+    board->current_piece.active = 0;
+    board->score = 0;
+    board->tick_timer = 0;
+    RowNode* last = NULL;
+    int i = 0;
+
+    //Creamos las 20 filas y las conectamos entre sí.
+    while (i < GRID_ROWS) {
+        RowNode* row = malloc(sizeof(RowNode));
+
+        //Si falla malloc, liberamos lo que ya habiamos creado.
+        if (row == NULL) {
+            RowNode* curr = board->first_row;
+            while (curr != NULL) {
+                RowNode* next = curr->next;
+                free(curr);
+                curr = next;
+            }
+            free(board);
+            return NULL;
+        }
+
+        row->next = NULL;
+        int c = 0;
+        while (c < GRID_COLS) {
+            row->cells[c] = 0;
+            c++;
+        }
+
+        //Si es la primera fila, la guardamos en first_row.
+        //Si no, la conectamos con la fila anterior.
+        if (last == NULL) {
+            board->first_row = row;
+        } else {
+            last->next = row;
+        }
+
+        last = row;
+        i++;
+    }
+
+    return board;
 }
+
+
 
 void gameBoardDelete(GameBoard* board) {
-    // TODO: Debe tolerar board == NULL.
-    // TODO: Recorrer y liberar todos los RowNode con free().
-    // TODO: Recorrer y liberar todos los PieceQueueNode.
-    // TODO: Recorrer y liberar todos los ParticleNode.
-    // TODO: Finalmente, liberar la estructura GameBoard.
-    printf("Función gameBoardDelete no implementada.\n");
+    //Si el tablero no existe, no hay nada que liberar.
+    if (board == NULL) {
+        return;
+    }
+
+    //Recorremos las filas y liberamos cada una.
+    RowNode* row = board->first_row;
+    while (row != NULL) {
+        RowNode* next = row->next;
+        free(row);
+        row = next;
+    }
+
+    //Hacemos lo mismo con las piezas de la cola.
+    PieceQueueNode* piece = board->queue_head;
+    while (piece != NULL) {
+        PieceQueueNode* next = piece->next;
+        free(piece);
+        piece = next;
+    }
+
+    //Liberamos tambien todas las particulas.
+    ParticleNode* part = board->first_particle;
+    while (part != NULL) {
+        ParticleNode* next = part->next;
+        free(part);
+        part = next;
+    }
+
+    //Al final liberamos el tablero.
+    free(board); //Al final liberamos el tablero.
 }
+
 
 void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
-    // TODO: Crear un ParticleNode con memoria dinámica.
-    // TODO: Inicializar x, y, velocidades aleatorias y un life_timer.
-    // TODO: Agregarlo al principio de la lista enlazada simple de partículas.
-    printf("Función gameBoardAddParticle no implementada.\n");
+    ParticleNode* memdePN = (ParticleNode*) malloc(sizeof(ParticleNode)); //Reservamos memoria para una nueva particula.
+
+    if (memdePN == NULL) {
+        return;
+    }
+
+    //Guardamos la posicion y le damos velocidades aleatorias.
+    memdePN->x = x;
+    memdePN->y = y;
+    memdePN->vel_x = (rand() % 5) / 10.0;
+    memdePN->vel_y = (rand() % 10) / 10.0;
+    memdePN->life_timer = 2;
+    memdePN->color = color;
+
+    //Agregamos la particula al principio de la lista.
+    memdePN->next = board->first_particle;
+    board->first_particle = memdePN;
 }
+
+
 
 int gameBoardCheckAndClearLines(GameBoard* board) {
-    // TODO: Recorrer la lista de RowNode.
-    // TODO: Si un RowNode tiene todas sus celdas > 0, desenlazarlo y hacer free().
-    // TODO: Crear un nuevo RowNode vacío (lleno de ceros).
-    // TODO: Insertar el nuevo RowNode en la CABEZA del tablero (board->first_row).
-    // TODO: Por cada celda destruida, invocar a gameBoardAddParticle().
-    printf("Función gameBoardCheckAndClearLines no implementada.\n");
-    return 0;
+    RowNode* actual = board->first_row;
+    RowNode* anterior = NULL;
+    int eliminadas = 0;
+    int fila = 0;
+
+    while (actual != NULL) {
+        RowNode* siguiente = actual->next;
+
+        int i = 0;
+        int filacompleta = 1;
+
+        // Revisar si todas las celdas están ocupadas.
+        while (i < GRID_COLS && filacompleta == 1) {
+            if (actual->cells[i] <= 0) {
+                filacompleta = 0;
+            }
+            i++;
+        }
+
+        if (filacompleta == 1) {
+
+            // Crear una nueva fila vacia.
+            RowNode* nuevafila = (RowNode*) malloc(sizeof(RowNode));
+            if (nuevafila == NULL) {
+                return eliminadas;
+            }
+
+            for (int j = 0; j < GRID_COLS; j++) {
+                nuevafila->cells[j] = 0;
+            }
+
+            // Generar una particula por cada celda.
+            for (int j = 0; j < GRID_COLS; j++) {
+                float x = OFFSET_X + j * CELL_SIZE;
+                float y = OFFSET_Y + fila * CELL_SIZE;
+                gameBoardAddParticle(board, x, y, actual->cells[j]);
+            }
+
+            // Desenlazar la fila completa.
+            if (anterior == NULL) {
+                board->first_row = siguiente;
+            } else {
+                anterior->next = siguiente;
+            }
+
+            free(actual);
+
+            // Insertar la fila vacía en la cabeza.
+            nuevafila->next = board->first_row;
+            board->first_row = nuevafila;
+
+            if (anterior == NULL) {
+                anterior = nuevafila;
+            }
+
+            actual = siguiente;
+            eliminadas++;
+        } else {
+            anterior = actual;
+            actual = siguiente;
+        }
+
+        fila++;
+    }
+
+    return eliminadas;
 }
+
+
 
 void gameBoardEnqueuePiece(GameBoard* board, int type) {
-    // TODO: Crear un PieceQueueNode con el 'type'.
-    // TODO: Insertarlo al final de la cola (queue_tail) y actualizar punteros.
-    printf("Función gameBoardEnqueuePiece no implementada.\n");
+
+    if (board == NULL) {
+        return;
+    }
+
+    //Creamos un nuevo nodo para guardar la pieza.
+    PieceQueueNode* nuevo = (PieceQueueNode*) malloc(sizeof(PieceQueueNode));
+
+    if (nuevo == NULL) {
+        return;
+    }
+
+    nuevo->type = type;
+    nuevo->next = NULL;
+
+    //Si la cola esta vacia, el nuevo nodo es el primero y el ultimo.
+    if (board->queue_head == NULL) {
+        board->queue_head = nuevo;
+        board->queue_tail = nuevo;
+    } else {
+
+        //Si ya hay piezas, agregamos el nodo al final de la cola.
+        board->queue_tail->next = nuevo;
+        board->queue_tail = nuevo;
+    }
 }
 
+
+
 int gameBoardDequeuePiece(GameBoard* board, int* out_type) {
-    // TODO: Si la cola está vacía, retornar 0.
-    // TODO: Extraer el primer nodo (queue_head).
-    // TODO: Guardar el type en la variable out_type, liberar el nodo y actualizar el head.
-    printf("Función gameBoardDequeuePiece no implementada.\n");
-    return 0;
+
+    //Si no hay tablero o no tenemos donde guardar el tipo, devolvemos 0.
+    if (board == NULL || out_type == NULL) {
+        return 0;
+    }
+
+    if (board->queue_head == NULL) {
+        return 0;
+    }
+
+    //Guardamos el tipo de la primera pieza antes de eliminarla.
+    PieceQueueNode* actual = board->queue_head;
+    *out_type = actual->type;
+
+    board->queue_head = actual->next;
+
+    //Si ya no quedan piezas, tambien dejamos el tail en NULL.
+    if (board->queue_head == NULL) {
+        board->queue_tail = NULL;
+    }
+
+    free(actual);
+    return 1;
 }
 
 // ========= LOGICA DE DIBUJADO Y COLISIONES (NO MODIFICAR) =========
