@@ -310,20 +310,121 @@ int inicializar() {
 }
 
 // ========= TESTS (COMPLETAR) =========
-
-void correrTests() {
+  void correrTests() {
     // TODO: Implementar los casos minimos del enunciado. Por ejemplo:
     //  - strDuplicate: "", "x", un string con distintos caracteres.
+
+
+char* dup1 = strDuplicate(""); // cuando es un string vacio
+char* dup2 = strDuplicate("y"); //cuando tengo un solo caracter
+char* dup3 = strDuplicate("td 2026"); // cuando tengo disitintos caracteres
+
+
+//libero la memorua de los 3 dup que cree
+free(dup1);
+free(dup2);
+free(dup3);
     //  - strCompare: "" vs "", "a" vs "a", y una desigualdad en ambos sentidos (s1/s2 y s2/s1).
-    //  - strConcatenate: "" + "abc" y "hola " + "mundo". Los argumentos deben crearse con
-    //    strDuplicate, porque strConcatenate los libera (no pasar literales).
-    //  - Cola: 5 push y 6 pop; el 6to debe devolver 0 y dejar queue_head y queue_tail en NULL.
-    //    Verificar tambien que un push posterior funcione.
-    //  - Tablero: llenar la fila de indice 19 (la de abajo), llamar a
-    //    gameBoardCheckAndClearLines y comprobar que first_row es la fila nueva vacia y que
-    //    la lista sigue teniendo 20 filas.
-    // Liberar toda la memoria pedida en los tests (strings y tableros).
-    printf("Tests no implementados.\n");
+
+
+char* cmp_1 = strcomapre("a");
+char* cmp_2 = strcompare ("a");
+
+
+int m1= strCompare (cmp_1,cmp_2); //el caso test a vs a
+//libero la memoria pedida
+free(cmp_1);
+free(cmp_2);
+//ahora me fijo en un caso en el que esten vacios
+char* cmp_vacio1 = strDuplicate("");
+char* cmp_vacio2 = strDuplicate ("");
+
+
+int m2= strCompare (cmp_vacio1,cmp_vacio2);
+//libero la memoria pedida
+free(cmp_vacio1);
+free(cmp_vacio2);
+
+
+  //caso de desigualdad, ej: a vs s este caso seria a<s
+  char* cmp_chico = strDuplicate("a");
+  char* cmp_grande = strDuplicate("s");
+  int m3 = strCuplicate (cmp_chico, cmp_grande);
+    free(cmp_chico);
+    free(cmp_grande);
+    //ahora inverso s<a
+ char* cmp_chico2 = strDuplicate("s");
+  char* cmp_grande2 = strDuplicate("a");
+  int m4 = strCuplicate (cmp_chico2, cmp_grande2);
+    free(cmp_chico2);
+    free(cmp_grande2);
+
+
+    //casos de strCocnatenate
+//strConcatenate libera internamente asi que se crean con StrDuplicate
+
+
+//strg vacio + str de 3 caracteres
+char*cas_1 = strDuplicate("");
+char*cas_2 = strDuplicate("aei");
+char* res = strConcatenate(cas_1,cas_2); //la funcion str concatenate libera cas_1 y cas_2
+free(res); //libera lo que pedimos para obtener la respuesta
+
+
+// caso de str 5 caracteres + strg 5 caracteres
+char*cas_3 = strDuplicate("holis");
+char*cas_4 = strDuplicate("holas");
+char* res2 = strConcatenate(cas_3,cas_4);
+free(res2); //libera resultado final
+}
+//logica del tablero 
+void test4_1() {
+    int out;
+    GameBoard* b = gameBoardNew();
+    int i = 0;
+    while (i < 5) {
+        gameBoardEnqueuePiece(b, i);
+        i++;
+    }
+    int ordenOk = 1;
+    i = 0;
+    while (i < 5) {
+        int r = gameBoardDequeuePiece(b, &out);
+        if (r != 1 || out != i) {
+            ordenOk = 0;
+        }
+        i++;
+    }
+    verificar(ordenOk, "4.1: 5 pops respetan el orden FIFO");
+    verificar(gameBoardDequeuePiece(b, &out) == 0, "4.1: el sexto pop devuelve 0");
+    verificar(b->queue_head == NULL, "4.1: queue_head en NULL");
+    verificar(b->queue_tail == NULL, "4.1: queue_tail en NULL");
+    gameBoardEnqueuePiece(b, 6);
+    verificar(gameBoardDequeuePiece(b, &out) == 1 && out == 6, "4.1: push y pop despues de vaciar");
+    gameBoardDelete(b);
+}
+void test4_2() {
+    GameBoard* b = gameBoardNew();
+    llenarFila(b, 19);
+    RowNode* cimaVieja = b->first_row;
+    verificar(gameBoardCheckAndClearLines(b) == 1, "4.2: devuelve 1");
+    verificar(b->first_row != cimaVieja, "4.2: first_row es un nodo nuevo");
+    verificar(filaVacia(b->first_row), "4.2: la nueva first_row esta vacia");
+    verificar(contarFilas(b) == GRID_ROWS, "4.2: la lista sigue con 20 filas");
+    gameBoardDelete(b);
+}
+
+3. 
+void test4_3() {
+    GameBoard* b = gameBoardNew();
+    llenarFila(b, 0);
+    llenarFila(b, 1);
+    verificar(gameBoardCheckAndClearLines(b) == 2, "4.3: devuelve 2");
+    verificar(contarFilas(b) == GRID_ROWS, "4.3: la lista sigue con 20 filas");
+    gameBoardDelete(b);
+}
+
+
 }
 
 // Compara contra "--test" sin depender de string.h ni del Ejercicio 1.
